@@ -14,7 +14,7 @@ const priceDB = helpers.readJson('priceList.json');
 const priceDB2 = helpers.readJson('priceList3.json');
 
 
-const fetchPriceApi = (req, res) => {
+const fetchPriceApi = async (req, res) => {
 	let {data} = req.body
 	data = JSON.parse(data);
 	if(!Array.isArray(data)){
@@ -35,11 +35,15 @@ const fetchPriceApi = (req, res) => {
 			
 			if(date in priceDB){
 				amount = item.amount * priceDB[date]
-				if(amount < 0) {
-					deposit += Math.abs(amount);
-				}else{
-					credit += Math.abs(amount);
-				}
+			}else{
+				let price = await getPriceFromGecko(date.split("-").reverse().join("-"));
+				amount = item.amount * price;
+			}
+
+			if(amount < 0) {
+				deposit += Math.abs(amount);
+			}else{
+				credit += Math.abs(amount);
 			}
 			rates.push([item.time, priceDB[date]])
 			return [item.time, Math.abs(amount)]
