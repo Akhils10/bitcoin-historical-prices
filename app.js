@@ -14,7 +14,7 @@ const priceDB = helpers.readJson('priceList.json');
 const priceDB2 = helpers.readJson('priceList3.json');
 
 
-const fetchPriceApi = async (req, res) => {
+const fetchPriceApi = (req, res) => {
 	let {data} = req.body
 	data = JSON.parse(data);
 	if(!Array.isArray(data)){
@@ -25,7 +25,7 @@ const fetchPriceApi = async (req, res) => {
 		let credit = 0;
 		const duration = [];
 		const rates = [];
-		const convPriceArr = data.map((item, index) => {
+		const convPriceArr = data.map(async (item, index) => {
 			let dd = typeof item.time === 'number' ? new Date(item.time) : new Date(item.time.toString());
 			let date = `${dd.getFullYear()}-${padNum(dd.getMonth() + 1)}-${padNum(dd.getDate())}`
 			let amount = 0;
@@ -101,7 +101,6 @@ const getDBPrices = async () => {
 	const start = '20-03-2014' // dd-mm-yyyy
 	const stop = '08-08-2018'; // dd-mm-yyyy
 	const dates_data = [];
-	const failed_dates = [];
 	let current = start
 
 	logger("starting database seeding... ", current)
@@ -117,9 +116,6 @@ const getDBPrices = async () => {
 		logger('fetching new price...', current)
 
 		if(current == stop){
-			//write to file
-			// helpers.writeJson('newPriceList.txt', dates_data);
-			// helpers.writeJson('failed.json', failed_dates);
 			process = false;
 			break;
 		}
@@ -142,10 +138,8 @@ const getDBPrices = async () => {
 				console.log("couldn't get price for given date")
 				helpers.write('failed.txt', current+'\n');
 				logger('price not found ...', current)
-			// failed_dates.push(current)
 			}
 		}
-		// const newDB = helpers.readJson('newPriceList.json')
 		
 		dates_data.push(date_obj)
 		helpers.write('newPriceList.txt', d);
