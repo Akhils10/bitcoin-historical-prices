@@ -25,7 +25,8 @@ const fetchPriceApi = (req, res) => {
 		let credit = 0;
 		const duration = [];
 		const rates = [];
-		const convPriceArr = data.map(async (item, index) => {
+		const priceArr = [];
+		data.forEach(async (item, index) => {
 			let dd = typeof item.time === 'number' ? new Date(item.time) : new Date(item.time.toString());
 			let date = `${dd.getFullYear()}-${padNum(dd.getMonth() + 1)}-${padNum(dd.getDate())}`
 			let amount = 0;
@@ -46,11 +47,11 @@ const fetchPriceApi = (req, res) => {
 				credit += Math.abs(amount);
 			}
 			rates.push([item.time, priceDB[date]])
-			return [item.time, Math.abs(amount)]
+			priceArr.push([item.time, Math.abs(amount)])
 		})
 	
-		if(convPriceArr){
-			res.status(200).json({price: convPriceArr, rates, total: [duration, deposit, credit]});
+		if(priceArr){
+			res.status(200).json({price: priceArr, rates, total: [duration, deposit, credit]});
 		}else{
 			res.status(400).json({message: "data was not valid. Ensure that the date or time passed is valid"})
 		}
